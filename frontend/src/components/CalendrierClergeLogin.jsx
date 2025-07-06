@@ -1,25 +1,46 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function CalendrierClergeLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false); // Can be used later for "refresh token"
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null); // New: for error messages
+  const navigate = useNavigate();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent form refresh
     setIsLoading(true);
+    setError(null);
+
     try {
-      console.log("Login attempt:", { email, password, rememberMe });
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    } catch (error) {
-      console.error("Login error:", error);
+      const response = await axios.post(
+        "http://localhost:8000/api/login/",
+        {
+          email,
+          password,
+        },
+        {
+          withCredentials: true, // Required for cookies
+        }
+      );
+
+      console.log("Login success:", response.data);
+      navigate("/dashboard");
+    } catch (err) {
+      const message =
+        err.response?.data?.error || "Login failed. Please try again.";
+      setError(message);
+      console.error("Login error:", message);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black shadow-2xl flex items-center justify-center p-4 relative">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4 relative">
       {/* Background Stained Glass */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute left-0 top-0 w-1/2 h-full">
@@ -32,23 +53,15 @@ export default function CalendrierClergeLogin() {
       </div>
 
       <div className="flex w-full max-w-6xl mx-auto relative z-10">
-        {/* Left - Image */}
-        <div className="hidden lg:flex lg:w-1/2 items-center justify-center relative">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-4/5 h-4/5 max-w-md"></div>
-          </div>
-        </div>
+        {/* Left side (optional image/illustration) */}
+        <div className="hidden lg:flex lg:w-1/2 items-center justify-center relative" />
 
         {/* Right - Login Form */}
         <div className="relative w-full max-w-md ml-auto">
-          <div className="bg-white text-black rounded-2xl p-8 w-full right-0">
+          <div className="bg-white text-black rounded-2xl p-8 w-full">
             {/* Logo */}
             <div className="flex items-center justify-center p-6">
-              <img
-                src="/logo.svg"
-                alt="Calendrier Clergé Logo"
-                className="h-20"
-              />
+              <img src="/logo.svg" alt="Calendrier Clergé Logo" className="h-20" />
             </div>
 
             {/* Heading */}
@@ -58,8 +71,15 @@ export default function CalendrierClergeLogin() {
               </h2>
             </div>
 
+            {/* Error */}
+            {error && (
+              <div className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
+                {error}
+              </div>
+            )}
+
             {/* Form */}
-            <div className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address
@@ -67,9 +87,10 @@ export default function CalendrierClergeLogin() {
                 <input
                   type="email"
                   value={email}
+                  required
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 bg-gray-50 focus:bg-white"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white outline-none"
                 />
               </div>
 
@@ -80,14 +101,15 @@ export default function CalendrierClergeLogin() {
                 <input
                   type="password"
                   value={password}
+                  required
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 bg-gray-50 focus:bg-white"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white outline-none"
                 />
               </div>
 
               <button
-                onClick={handleSubmit}
+                type="submit"
                 disabled={isLoading}
                 className="w-full bg-blue-900 hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -106,12 +128,12 @@ export default function CalendrierClergeLogin() {
                         r="10"
                         stroke="currentColor"
                         strokeWidth="4"
-                      ></circle>
+                      />
                       <path
                         className="opacity-75"
                         fill="currentColor"
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      ></path>
+                      />
                     </svg>
                     Signing In...
                   </div>
@@ -119,29 +141,7 @@ export default function CalendrierClergeLogin() {
                   "Sign In"
                 )}
               </button>
-            </div>
-
-            {/* Links */}
-            <div className="mt-6 text-center">
-              <a
-                href="#"
-                className="text-sm text-blue-600 hover:text-blue-800 transition-colors duration-200"
-              >
-                Forgot your password?
-              </a>
-            </div>
-
-            <div className="mt-4 text-center">
-              <p className="text-sm text-gray-600">
-                Don’t have an account?{" "}
-                <a
-                  href="#"
-                  className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
-                >
-                  Sign up
-                </a>
-              </p>
-            </div>
+            </form>
           </div>
         </div>
       </div>

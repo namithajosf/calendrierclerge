@@ -1,7 +1,7 @@
 // src/pages/PublicDashboard.jsx
 import { useEffect, useState } from "react"
 import axios from "axios"
-import DashboardLayout from "./components/DashboardLayout"
+import DashboardLayout from "../components/DashboardLayout"
 import { FaChurch } from "react-icons/fa"
 
 export default function PublicDashboard() {
