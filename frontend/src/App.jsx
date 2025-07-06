@@ -1,11 +1,7 @@
-import DashboardLayout from './components/DashboardLayout';
+import CalendrierClergeLogin from './components/CalendrierClergeLogin';
 
 function App() {
-  return (
-    <DashboardLayout>
-      {/* You can add routes or children here if needed */}
-    </DashboardLayout>
-  );
+  return <CalendrierClergeLogin />;
 }
 
 export default App;
